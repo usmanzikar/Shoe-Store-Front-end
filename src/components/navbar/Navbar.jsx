@@ -4,7 +4,6 @@ import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-scroll";
 
-
 export default function Navbar() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -74,7 +73,7 @@ export default function Navbar() {
                     {
                       title: "Casual Shoes",
                       path: "casual",
-                      links: ["Daily Wear", "Slip-ons",],
+                      links: ["Daily Wear", "Slip-ons"],
                     },
                   ].map((col) => (
                     <div key={col.title} className="min-w-[180px]">
@@ -82,12 +81,13 @@ export default function Navbar() {
                       {col.links.map((link) => (
                         <button
                           key={link}
-                          onClick={() =>
+                          onClick={() => {
                             navigate(`/${col.path}`, {
                               state: { category: link },
-                            })
-                          }
-                          className="block hover:bg-orange-50 px-2 py-1 rounded transition text-left w-full text-gray-800"
+                            });
+                            setOpenDropdown(null); // ❗ Close dropdown after click
+                          }}
+                          className="block hover:bg-orange-500 hover:text-white px-2 py-1 rounded transition text-left w-full text-gray-800"
                         >
                           {link}
                         </button>
@@ -98,22 +98,18 @@ export default function Navbar() {
               </div>
             )}
           </div>
-          <Link
-            to="catagoryhome"
-            smooth={true}
-            duration={1000}
-            className="hover:text-orange-400 cursor-pointer font-medium transition"
+          <button
+            onClick={() => navigate("/", { state: { scrollTo: "category" } })}
+            className="hover:text-orange-400 font-medium transition"
           >
-            Catagory
-          </Link>
-          <Link
-            to="blog"
-            smooth={true}
-            duration={1000}
-            className="hover:text-orange-400 cursor-pointer font-medium transition"
+            Category
+          </button>
+          <button
+            onClick={() => navigate("/", { state: { scrollTo: "blog" } })}
+            className="hover:text-orange-400 font-medium transition"
           >
             Blog
-          </Link>
+          </button>
 
           {/* PAGES */}
           <div
@@ -127,38 +123,38 @@ export default function Navbar() {
             {openDropdown === "pages" && (
               <div className="fixed top-[64px] left-0 w-screen bg-white text-gray-800 p-6 shadow-lg z-40 flex justify-center">
                 <div className="max-w-md w-full flex justify-center gap-12">
-                  {["FAQ", "Contact Us"].map((link) => (
-                    <Link
-                      key={link}
-                      to={link === "FAQ" ? "faq" : "contact"}
-                      smooth={true}
-                      duration={1000}
-                      className="block hover:bg-orange-50 px-4 py-2 rounded transition font-medium cursor-pointer"
+                  {[
+                    { label: "FAQ", target: "faq" },
+                    { label: "Contact Us", target: "contact" },
+                  ].map(({ label, target }) => (
+                    <button
+                      key={label}
+                      onClick={() => {
+                        navigate("/", { state: { scrollTo: target } });
+                        setOpenDropdown(null); // close the dropdown
+                      }}
+                      className="block hover:bg-orange-500 hover:text-white px-4 py-2 rounded transition font-medium cursor-pointer w-full text-left"
                     >
-                      {link}
-                    </Link>
+                      {label}
+                    </button>
                   ))}
                 </div>
               </div>
             )}
           </div>
 
-          <Link
-            to="about"
-            smooth={true}
-            duration={1000}
-            className="hover:text-orange-400 cursor-pointer font-medium transition"
+          <button
+            onClick={() => navigate("/", { state: { scrollTo: "about" } })}
+            className="hover:text-orange-400 font-medium transition"
           >
             About
-          </Link>
-          <Link
-            to="offer"
-            smooth={true}
-            duration={1000}
-            className="hover:text-orange-400 cursor-pointer font-medium transition"
+          </button>
+          <button
+            onClick={() => navigate("/", { state: { scrollTo: "offer" } })}
+            className="hover:text-orange-400 font-medium transition"
           >
             Offers
-          </Link>
+          </button>
 
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -183,7 +179,10 @@ export default function Navbar() {
       {isOpen && (
         <div className="md:hidden bg-black text-white px-4 pb-4">
           {/* Home */}
-          <a href="/" className="block py-2 border-b border-white/20 hover:text-orange-500">
+          <a
+            href="/"
+            className="block py-2 border-b border-white/20 hover:text-orange-500"
+          >
             Home
           </a>
 
@@ -365,24 +364,58 @@ export default function Navbar() {
           </div>
 
           {/* Other Links */}
-          <a href="#" className="block py-2 border-b border-white/20 hover:text-orange-500">
+
+          <button
+            onClick={() => {
+              navigate("/", { state: { scrollTo: "blog" } });
+              setIsOpen(false); // Close mobile menu
+            }}
+            className="block w-full text-left py-2 border-b border-white/20 hover:text-orange-400"
+          >
             Blog
-          </a>
-          <a href="#" className="block py-2 border-b border-white/20 hover:text-orange-500">
+          </button>
+
+          <button
+            onClick={() => {
+              navigate("/", { state: { scrollTo: "about" } });
+              setIsOpen(false); // Close mobile menu
+            }}
+            className="block w-full text-left py-2 border-b border-white/20 hover:text-orange-400"
+          >
             About
-          </a>
-          <a href="#" className="block py-2 border-b border-white/20 hover:text-orange-500">
+          </button>
+
+          <button
+            onClick={() => {
+              navigate("/", { state: { scrollTo: "offer" } });
+              setIsOpen(false); // Close mobile menu
+            }}
+            className="block w-full text-left py-2 border-b border-white/20 hover:text-orange-400"
+          >
             Offers
-          </a>
-          <details className="py-2 border-b border-white/20 cursor-pointer ">
-            <summary>Pages</summary>
+          </button>
+
+          <details className="py-2 border-b border-white/20 cursor-pointer">
+            <summary className="hover:text-orange-500">Pages</summary>
             <div className="pl-4">
-              <a href="#" className="block py-1 hover:text-orange-500">
+              <button
+                onClick={() => {
+                  navigate("/", { state: { scrollTo: "faq" } });
+                  setIsOpen(false); // Close mobile menu
+                }}
+                className="block w-full text-left py-2 border-b border-white/20 hover:text-orange-400"
+              >
                 FAQ
-              </a>
-              <a href="#" className="block py-1 hover:text-orange-500">
+              </button>
+              <button
+                onClick={() => {
+                  navigate("/", { state: { scrollTo: "contact" } });
+                  setIsOpen(false); // Close mobile menu
+                }}
+                className="block w-full text-left py-2 border-b border-white/20 hover:text-orange-400"
+              >
                 Contact Us
-              </a>
+              </button>
             </div>
           </details>
 

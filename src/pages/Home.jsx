@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import shoe1 from '../assets/casual.jpg';
 import shoe2 from '../assets/formal.jpg';
 import shoe3 from '../assets/sneakers.jpg';
-import CategorySection from '../components/categorySection/CategorySection';
 
 
 
@@ -86,7 +85,6 @@ export default function Home() {
         </div>
       </div>
     </section>
-    <CategorySection/>
     
     </>
   );

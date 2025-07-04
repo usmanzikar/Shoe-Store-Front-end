@@ -28,7 +28,7 @@ const blogs = [
 
 export default function BlogSection() {
   return (
-    <section id='blog' className="bg-white py-20 px-6">
+    <section className="bg-white py-20 px-6">
       <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">Latest from Our Blog</h2>
       <div className="space-y-16">
         {blogs.map((blog, idx) => (

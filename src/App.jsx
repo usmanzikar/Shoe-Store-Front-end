@@ -1,6 +1,8 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
+import { Element, scroller } from 'react-scroll';
 import { useEffect } from 'react';
-import { scroller } from 'react-scroll';
+import { useLocation, useNavigate } from 'react-router-dom';
+
 
 import Navbar from './components/navbar/Navbar';
 import Home from './pages/Home';
@@ -14,30 +16,69 @@ import Footer from './components/footer/Footer';
 import ArrowUp from './components/common/ArrowUp';
 import Men from './pages/Men';
 import Women from './pages/Women';
+import CategorySection from './components/categorySection/CategorySection';
 
 function App() {
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+useEffect(() => {
+  if (location.pathname === "/" && location.state?.scrollTo) {
+    scroller.scrollTo(location.state.scrollTo, {
+      smooth: true,
+      duration: 1000,
+      offset: -80, // adjust for your fixed navbar
+    });
+
+    // Clear the scrollTo state so it doesn’t trigger again on reload
+    navigate(".", { replace: true, state: null });
+  }
+}, [location]);
   
 
   return (
     <>
       <Navbar />
       <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <Home />
-              <Products />
-              <BlogSection />
-              <FaqSection />
-              <LatestNewsSection />
-              <OffersSection />
-              <OrderPolicySection />
-              <Footer />
-              <ArrowUp />
-            </>
-          }
-        />
+       <Route
+  path="/"
+  element={
+    <>
+      <Home />
+      <Element name="category">
+        <CategorySection/>
+      </Element>
+      <Products />
+
+      <Element name="blog">
+        <BlogSection />
+      </Element>
+
+      <Element name="faq">
+        <FaqSection />
+      </Element>
+
+      <Element name="latest-news">
+        <LatestNewsSection />
+      </Element>
+
+      <Element name="offer">
+        <OffersSection />
+      </Element>
+
+      <Element name="about">
+        <OrderPolicySection />
+      </Element>
+
+      <Element name="contact">
+        <Footer />
+      </Element>
+
+      <ArrowUp />
+    </>
+  }
+/>
         <Route path="/menswear" element={<Men />} />
         <Route path="/womenwear" element={<Women />} />
       </Routes>
