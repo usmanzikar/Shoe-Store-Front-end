@@ -17,7 +17,7 @@ export default function LazyImage({ src, alt = '', className = '', skeletonClass
 
       <img
         ref={imgRef}
-        src={loadedSrc}
+        src={loadedSrc || 'Image not Available'}
         alt={alt}
         onLoad={() => setIsLoaded(true)}
         className={`transition-opacity duration-300 ease-in-out 

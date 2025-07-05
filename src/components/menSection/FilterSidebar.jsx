@@ -4,6 +4,7 @@ export default function FilterSidebar({ filters, setFilters, onClose }) {
   const sizes = ["40", "41", "42", "43", "44"];
   const colors = ["Black", "White", "Brown", "Blue"];
   const [selectedPrice, setSelectedPrice] = useState(5000);
+ 
 
   const handlePriceChange = (value) => {
     setSelectedPrice(value);

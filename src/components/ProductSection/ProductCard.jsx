@@ -6,7 +6,7 @@ export default function ProductCard({ product }) {
   return (
     <div className="relative overflow-hidden group rounded-lg shadow-md bg-white">
       <LazyImage
-        src={product.image}
+        src={product.image || 'Image not Available'}
         alt={product.name}
         className="w-full h-72 object-cover transition-transform duration-500 group-hover:scale-110"
         skeletonClass="w-full h-72"

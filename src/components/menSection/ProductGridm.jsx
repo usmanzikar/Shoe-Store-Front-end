@@ -31,7 +31,7 @@ export default function ProductGrid({ filters }) {
 >
   {/* Image */}
   <img
-    src={product.image}
+    src={product.image || 'Image not Available'  }
     alt={product.name}
     className="w-full h-[250px] object-cover rounded"
   />

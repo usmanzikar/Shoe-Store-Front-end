@@ -17,6 +17,9 @@ import ArrowUp from './components/common/ArrowUp';
 import Men from './pages/Men';
 import Women from './pages/Women';
 import CategorySection from './components/categorySection/CategorySection';
+import Performance from './pages/Performance';
+import Casual from './pages/Casual';
+import SearchResultSection from './components/searchResultSection/SearchResultSection';
 
 function App() {
 
@@ -81,6 +84,10 @@ useEffect(() => {
 />
         <Route path="/menswear" element={<Men />} />
         <Route path="/womenwear" element={<Women />} />
+        <Route path='/performance' element={<Performance/>}/>
+        <Route path='/casual' element={<Casual/>}/>
+        <Route path="/:query" element={<SearchResultSection />} />
+
       </Routes>
     </>
   );

@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import { Menu, X, ShoppingCart, Search } from "lucide-react";
 import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-scroll";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -14,6 +13,15 @@ export default function Navbar() {
   const dropdownTimeout = useRef(null);
 
   const toggleMenu = () => setIsOpen(!isOpen);
+
+  const [query, setQuery] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Prevent page reload
+    if (query.trim() !== "") {
+      navigate(`/${query.trim()}`); // Navigate to /search/boots
+    }
+  };
 
   const handleMouseEnter = (menu) => {
     clearTimeout(dropdownTimeout.current);
@@ -158,12 +166,20 @@ export default function Navbar() {
 
           <div className="flex items-center gap-4">
             <div className="relative">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="px-3 py-1 rounded-md text-black"
-              />
-              <Search className="absolute right-2 top-1.5 w-4 h-4 text-orange-500" />
+              <form onSubmit={handleSubmit} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={query}
+                  placeholder="Search shoes..."
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="px-3 py-1 rounded-md text-black"
+                />
+
+                <Search
+                  type="submit"
+                  className="absolute right-2 top-1.5 w-4 h-4 text-orange-500"
+                />
+              </form>
             </div>
             <ShoppingCart className="w-6 h-6 hover:text-orange-400 cursor-pointer transition" />
           </div>
@@ -216,35 +232,25 @@ export default function Navbar() {
                 >
                   Men's Wear
                 </button>
-
                 {activeSubMenu === "men" && (
                   <div className="pl-4">
-                    <a
-                      href="/menswear"
-                      className="block py-1 hover:text-orange-500"
-                    >
-                      Sneakers
-                    </a>
-                    <a
-                      href="/menswear"
-                      className="block py-1 hover:text-orange-500"
-                    >
-                      Boots
-                    </a>
-                    <a
-                      href="/menswear"
-                      className="block py-1 hover:text-orange-500"
-                    >
-                      Loafers
-                    </a>
-                    <a
-                      href="/menswear"
-                      className="block py-1 hover:text-orange-500"
-                    >
-                      Sandals
-                    </a>
+                    {["Sneakers", "Boots", "Loafers", "Sandals"].map(
+                      (category) => (
+                        <button
+                          key={category}
+                          onClick={() => {
+                            navigate("/menswear", { state: { category } });
+                            setIsOpen(false); // Close mobile menu
+                          }}
+                          className="block w-full text-left py-1 hover:text-orange-500"
+                        >
+                          {category}
+                        </button>
+                      )
+                    )}
                   </div>
                 )}
+
                 {/* women's Wear menu */}
                 <button
                   onClick={() =>
@@ -260,30 +266,18 @@ export default function Navbar() {
                 </button>
                 {activeSubMenu === "women" && (
                   <div className="pl-4">
-                    <a
-                      href="/menswear"
-                      className="block py-1 hover:text-orange-500"
-                    >
-                      Heels
-                    </a>
-                    <a
-                      href="/menswear"
-                      className="block py-1 hover:text-orange-500"
-                    >
-                      Flat Shoes
-                    </a>
-                    <a
-                      href="/menswear"
-                      className="block py-1 hover:text-orange-500"
-                    >
-                      Boots
-                    </a>
-                    <a
-                      href="/menswear"
-                      className="block py-1 hover:text-orange-500"
-                    >
-                      Sneakers
-                    </a>
+                    {["Heels", "Flats", "Boots", "Sneakers"].map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => {
+                          navigate("/womenwear", { state: { category } });
+                          setIsOpen(false);
+                        }}
+                        className="block w-full text-left py-1 hover:text-orange-500"
+                      >
+                        {category}
+                      </button>
+                    ))}
                   </div>
                 )}
 
@@ -302,34 +296,29 @@ export default function Navbar() {
                 >
                   Performance Shoes
                 </button>
+
                 {activeSubMenu === "performance" && (
                   <div className="pl-4">
-                    <a
-                      href="/menswear"
-                      className="block py-1 hover:text-orange-500"
-                    >
-                      Running Shoes
-                    </a>
-                    <a
-                      href="/menswear"
-                      className="block py-1 hover:text-orange-500"
-                    >
-                      Basketball Shoes
-                    </a>
-                    <a
-                      href="/menswear"
-                      className="block py-1 hover:text-orange-500"
-                    >
-                      Football Shoes
-                    </a>
-                    <a
-                      href="/menswear"
-                      className="block py-1 hover:text-orange-500"
-                    >
-                      Training
-                    </a>
+                    {[
+                      "Running Shoes",
+                      "Basketball Shoes",
+                      "Football Shoes",
+                      "Training",
+                    ].map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => {
+                          navigate("/performance", { state: { category } });
+                          setIsOpen(false);
+                        }}
+                        className="block w-full text-left py-1 hover:text-orange-500"
+                      >
+                        {category}
+                      </button>
+                    ))}
                   </div>
                 )}
+
                 {/* casual shoes menu */}
                 <button
                   onClick={() =>
@@ -345,18 +334,18 @@ export default function Navbar() {
                 </button>
                 {activeSubMenu === "casual" && (
                   <div className="pl-4">
-                    <a
-                      href="/menswear"
-                      className="block py-1 hover:text-orange-500"
-                    >
-                      Slip-ons
-                    </a>
-                    <a
-                      href="/menswear"
-                      className="block py-1 hover:text-orange-500"
-                    >
-                      Daily Wear
-                    </a>
+                    {["Slip-ons", "Daily Wear"].map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => {
+                          navigate("/casual", { state: { category } });
+                          setIsOpen(false);
+                        }}
+                        className="block w-full text-left py-1 hover:text-orange-500"
+                      >
+                        {category}
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
@@ -420,11 +409,21 @@ export default function Navbar() {
           </details>
 
           <div className="mt-3">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-full px-3 py-1 rounded-md text-black"
-            />
+            <form onSubmit={handleSubmit} className="flex items-center gap-2">
+              <input
+                type="text"
+                value={query}
+                placeholder="Search shoes..."
+                onChange={(e) => setQuery(e.target.value)}
+                className="px-3 py-1 rounded-md text-black"
+              />
+              <button
+                type="submit"
+                className="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600"
+              >
+                Search
+              </button>
+            </form>
           </div>
         </div>
       )}
