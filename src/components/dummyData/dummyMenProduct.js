@@ -11,6 +11,7 @@ const products = [
     description: 'Durable boots for outdoor wear.',
     category: 'Boots',
     price: 779.99,
+    gender: 'Men',
     color: 'Brown',
     sizes: ['40', '41'],
   },
@@ -20,6 +21,7 @@ const products = [
     image: sneaker1,
     description: 'Perfect for daily walking and comfort.',
     category: 'Sneakers',
+    gender: 'Men',
     price: 1159.99,
     color: 'White',
     sizes: ['41', '42'],
@@ -32,6 +34,7 @@ const products = [
     description: 'Slip-on style for formal wear.',
     category: 'Loafers',
     price: 1689.99,
+    gender: 'Men',
     color: 'Black',
     sizes: ['43', '44'],
 
@@ -43,6 +46,7 @@ const products = [
     description: 'Open design for summer wear.',
     category: 'Sandals',
     price: 4539.99,
+    gender: 'Men',
     color: 'Tan',
     sizes: ['44'],
 
