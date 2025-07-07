@@ -107,12 +107,6 @@ export default function Navbar() {
             )}
           </div>
           <button
-            onClick={() => navigate("/", { state: { scrollTo: "category" } })}
-            className="hover:text-orange-400 font-medium transition"
-          >
-            Category
-          </button>
-          <button
             onClick={() => navigate("/", { state: { scrollTo: "blog" } })}
             className="hover:text-orange-400 font-medium transition"
           >

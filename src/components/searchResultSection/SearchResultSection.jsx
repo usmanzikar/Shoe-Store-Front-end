@@ -2,8 +2,12 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import FilterSidebarSearchPage from "./FilterSidebarSearchPage";
 import allProductsCombined from "../dummyData/allProductsCombined";
+import { useNavigate } from "react-router-dom";
+
 
 export default function SearchResultsPage() {
+    const navigate = useNavigate();
+
   const { query } = useParams();
 
   const [filters, setFilters] = useState({
@@ -87,11 +91,12 @@ export default function SearchResultsPage() {
             filteredResults.map((item) => (
               <div
                 key={item.id}
+                onClick={() => navigate(`/product/${item.id}`)}
                 className="bg-white rounded-xl shadow hover:shadow-2xl transition-all duration-300 flex flex-col h-[500px] w-full"
               >
                 {/* Product Image */}
                 <img
-                  src={item.image || "Image Not Available"}
+                  src={item.image[0] || "Image Not Available"}
                   alt={item.name}
                   className="w-full h-[220px] object-cover rounded-t-xl"
                 />
@@ -106,13 +111,13 @@ export default function SearchResultsPage() {
                     <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                       {item.description}
                     </p>
-                     <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                       Category: {item.category}
                     </p>
-                     <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                       For: {item.gender}
                     </p>
-                     <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                       Color: {item.color}
                     </p>
                     <p className="text-orange-500 font-semibold">

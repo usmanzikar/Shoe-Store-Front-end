@@ -20,6 +20,8 @@ import CategorySection from './components/categorySection/CategorySection';
 import Performance from './pages/Performance';
 import Casual from './pages/Casual';
 import SearchResultSection from './components/searchResultSection/SearchResultSection';
+import ProductDetail from './pages/ProductDetail';
+import AllProductsCollection from './pages/AllProductsCollection';
 
 function App() {
 
@@ -87,6 +89,8 @@ useEffect(() => {
         <Route path='/performance' element={<Performance/>}/>
         <Route path='/casual' element={<Casual/>}/>
         <Route path="/:query" element={<SearchResultSection />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/collection" element={<AllProductsCollection />} />
 
       </Routes>
     </>
