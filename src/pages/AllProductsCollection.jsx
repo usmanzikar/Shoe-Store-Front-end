@@ -67,11 +67,12 @@ const [showFilters, setShowFilters] = useState(false);
       </div>
      <div className="flex flex-col md:flex-row gap-6">
         {/* Sidebar */}
-               <div className={`${showFilters ? "block" : "hidden"} md:block`}>
+               <div className={`${showFilters ? "block" : "hidden"} md:block pt-4`}>
                  <FilterSidebarProductCollection filters={filters} setFilters={setFilters} />
                </div>
 
         {/* Product Grid */}
+        
         <ProductGridCollection filters={filters} />
       </div>
     </section>

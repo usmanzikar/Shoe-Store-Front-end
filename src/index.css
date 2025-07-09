@@ -8,3 +8,25 @@ body {
 h1, h2, h3 {
   font-family: 'Poppins', sans-serif;
 }
+
+/* Tailwind plugin-like utility styles */
+.backface-hidden {
+  backface-visibility: hidden;
+}
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+@layer utilities {
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+}
