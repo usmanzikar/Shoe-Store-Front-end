@@ -32,7 +32,7 @@ export default function ProductGridPerformance({ filters }) {
         <div
           key={product.id}
           onClick={() => navigate(`/product/${product.id}`)}
-          className="bg-white rounded-xl shadow hover:shadow-2xl transition-all duration-300 p-4 relative group flex flex-col justify-between h-[500px] max-w-[320px]"
+          className="bg-white rounded-xl shadow hover:shadow-2xl transition-all duration-300 p-4 relative group flex flex-col justify-between h-auto max-w-[320px]"
         >
           {/* Image */}
           <img
@@ -48,10 +48,19 @@ export default function ProductGridPerformance({ filters }) {
                 {product.name}
               </h4>
               <p className="text-gray-600 text-sm">{product.description}</p>
+              <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                Category: {product.category}
+              </p>
+              <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                For: {product.gender}
+              </p>
+              <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                Color: {product.color}
+              </p>
               <p className="text-orange-600 font-bold mt-1">
                 PKR {product.price}
               </p>
-              <p className="text-gray-400 text-xs h-5 mt-4">Interest: N/A</p>{" "}
+              
               {/* force height here */}
             </div>
 

@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 
 export default function ProductImageGallery({ images }) {
   const [selected, setSelected] = useState(images[0]);
+
+   useEffect(() => {
+    setSelected(images[0]); // Reset when images prop changes
+  }, [images]);
 
   return (
     <div className="md:w-1/2" style={{ width: '100%' }}>

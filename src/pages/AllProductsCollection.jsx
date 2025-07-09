@@ -35,6 +35,7 @@ const [showFilters, setShowFilters] = useState(false);
             backgroundImage: `url(${detailnavimage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
+            marginTop:"60px",
           }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
@@ -44,7 +45,7 @@ const [showFilters, setShowFilters] = useState(false);
             <p className="text-sm text-gray-200 mt-2">
               <Link
                 to="/collection"
-                className="underline hover:text-white transition"
+                className=" hover:text-orange-500 transition hover:cursor-pointer"
               >
                 Shop
               </Link>{" "}

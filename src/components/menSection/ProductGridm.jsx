@@ -25,12 +25,13 @@ export default function ProductGridm({ filters }) {
   const filtered = dummyProducts.filter(filterProducts);
 
   return (
+    
     <div className="w-full md:flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
       {filtered.map((product) => (
         <div
           key={product.id}
           onClick={() => navigate(`/product/${product.id}`)}
-          className="cursor-pointer bg-white rounded-xl shadow hover:shadow-2xl transition-all duration-300 p-4 relative group flex flex-col justify-between h-[500px] max-w-[320px]"
+          className="cursor-pointer bg-white rounded-xl shadow hover:shadow-2xl transition-all duration-300 p-4 relative group flex flex-col justify-between h-auto max-w-[320px]"
         >
           {/* Image */}
           <img
@@ -46,10 +47,19 @@ export default function ProductGridm({ filters }) {
                 {product.name}
               </h4>
               <p className="text-gray-600 text-sm">{product.description}</p>
+             
+              <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                Category: {product.category}
+              </p>
+              <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                For: {product.gender}
+              </p>
+              <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                Color: {product.color}
+              </p>
               <p className="text-orange-600 font-bold mt-1">
                 PKR {product.price}
               </p>
-              <p className="text-gray-400 text-xs h-5 mt-4">Interest: N/A</p>
             </div>
 
             {/* Buttons */}
@@ -77,5 +87,6 @@ export default function ProductGridm({ filters }) {
         </div>
       ))}
     </div>
+
   );
 }
