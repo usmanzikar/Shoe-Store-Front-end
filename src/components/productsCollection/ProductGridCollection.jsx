@@ -63,11 +63,7 @@ export default function ProductGridCollection({ filters }) {
             <div className="relative w-full h-[380px] transition-transform duration-700 transform-style-3d group-hover:rotate-y-180">
               {/* Front Side */}
               <div className="absolute w-full h-full backface-hidden rounded-xl shadow overflow-hidden">
-                {/* <img
-                  src={product.image[0]}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                /> */}
+               
                 <LazyImage
                   src={product.image[0]}
                   alt={product.name}

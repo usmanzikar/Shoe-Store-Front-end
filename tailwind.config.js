@@ -5,7 +5,14 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      extend: {
+    fontFamily: {
+      body: ['Satoshi', 'sans-serif'],
+      heading: ['Clash Display', 'sans-serif'],
+    },
+  },
+    },
   },
   plugins: [],
 }

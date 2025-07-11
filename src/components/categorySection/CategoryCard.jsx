@@ -13,7 +13,7 @@ export default function CategoryCard({ image, label, color }) {
         style={{ backgroundImage: `url(${image})` }}
       />
       <div
-        className="absolute bottom-6 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-md font-semibold text-white"
+        className="absolute bottom-6 left-1/2 transform -translate-x-1/2 px-2 py-1 rounded-md font-semibold text-white"
         style={{ backgroundColor: color, fontFamily: 'Poppins' }}
       >
         {label}

@@ -3,10 +3,11 @@ import { useLocation } from "react-router-dom";
 import FilterSidebar from "../components/menSection/FilterSidebar";
 import ProductGrid from "../components/menSection/ProductGridm";
 import detailnavimage from '../assets/detailnavimg.jpg';
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 
 
 export default function Men() {
+  const navigate = useNavigate();
   const location = useLocation();
 
   const [filters, setFilters] = useState({
@@ -39,6 +40,13 @@ export default function Men() {
           }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+           {/* Back Button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute top-10 left-4 z-20 bg-white text-black px-3 py-1 text-sm rounded hover:bg-orange-500 hover:text-white transition"
+          >
+            ← Back
+          </button>
 
           <div className="relative z-10">
             <h1 className="text-3xl font-bold">All Collection</h1>

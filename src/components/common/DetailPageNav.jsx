@@ -1,5 +1,5 @@
 import detailnavimage from "../../assets/detailnavimg.jpg";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import allProductsCombined from "../dummyData/allProductsCombined";
 
@@ -7,7 +7,7 @@ import allProductsCombined from "../dummyData/allProductsCombined";
 
 export default function DetailPageNav() {
 
-
+const navigate = useNavigate();
 const { id } = useParams();
 const product = allProductsCombined.find((p) => p.id === parseInt(id));
 
@@ -30,6 +30,14 @@ const product = allProductsCombined.find((p) => p.id === parseInt(id));
           }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+
+           {/* Back Button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute top-10 left-4 z-20 bg-white text-black px-3 py-1 text-sm rounded hover:bg-orange-500 hover:text-white transition"
+          >
+            ← Back
+          </button>
 
           <div className="relative z-10">
             <h1 className="text-3xl font-bold">{product.name}</h1>

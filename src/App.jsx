@@ -22,6 +22,7 @@ import Casual from './pages/Casual';
 import SearchResultSection from './components/searchResultSection/SearchResultSection';
 import ProductDetail from './pages/ProductDetail';
 import AllProductsCollection from './pages/AllProductsCollection';
+import CategoryPage from './components/categorySection/CategoryPage';
 
 function App() {
 
@@ -91,6 +92,7 @@ useEffect(() => {
         <Route path="/:query" element={<SearchResultSection />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/collection" element={<AllProductsCollection />} />
+        <Route path="/category/:categorypage" element={<CategoryPage />} />
 
       </Routes>
     </>

@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 h1, h2, h3 {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Clash Display', sans-serif;
 }
 
 /* Tailwind plugin-like utility styles */
