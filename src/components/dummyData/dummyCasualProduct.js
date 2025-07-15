@@ -16,6 +16,7 @@ const products = [
     gender: ['women','Men'],
     color: 'Gray',
     sizes: ['40', '41'],
+    offer: '50-off',
   },
   {
     id: 14,

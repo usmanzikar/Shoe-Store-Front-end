@@ -34,6 +34,7 @@ const products = [
     price: 1159.99,
     color: 'White',
     sizes: ['41', '42'],
+    offer: '30-off',
 
   },
   {
@@ -64,6 +65,7 @@ const products = [
     stocks:13,
     color: 'Tan',
     sizes: ['44'],
+    offer: '70-off'
 
   },
   {
@@ -79,6 +81,7 @@ const products = [
     stocks:13,
     color: 'Tan',
     sizes: ['44'],
+    offer: '50-off',
 
   },
 ];

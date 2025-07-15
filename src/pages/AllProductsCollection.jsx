@@ -3,9 +3,10 @@ import { useLocation } from "react-router-dom";
 import FilterSidebarProductCollection from "../components/productsCollection/FilterSidebarProductCollection";
 import ProductGridCollection from '../components/productsCollection/ProductGridCollection';
 import detailnavimage from '../assets/detailnavimg.jpg';
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 
 export default function AllProductsCollection() {
+  const navigate = useNavigate();
   const location = useLocation();
   const [filters, setFilters] = useState({
     color: "",

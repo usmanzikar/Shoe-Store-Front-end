@@ -18,6 +18,7 @@ const products = [
     gender: ["women", "Men"],
     color: "Black",
     sizes: ["42", "43"],
+    offer: '70-off',
   },
   {
     id: 10,
@@ -33,6 +34,7 @@ const products = [
     gender: ["women", "Men"],
     color: "White",
     sizes: ["43", "44"],
+   
   },
   {
     id: 11,
@@ -63,6 +65,7 @@ const products = [
     price: 2099.99,
     color: "White",
     sizes: ["40", "41", "42"],
+    offer: '30-off',
   },
 ];
 

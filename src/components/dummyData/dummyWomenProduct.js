@@ -17,6 +17,7 @@ const womenProducts = [
     color: 'Red',
     stocks:9,
     sizes: ['36', '37', '38'],
+    offer: '70-off',
   },
   {
     id: 6,
@@ -31,6 +32,7 @@ const womenProducts = [
     color: 'Black',
     stocks:19,
     sizes: ['37', '38', '39'],
+    offer: '70-off'
   },
   {
     id: 7,
@@ -59,6 +61,7 @@ const womenProducts = [
     color: 'Pink',
     stocks:13,
     sizes: ['36', '37', '38'],
+    offer: '50-off',
   },
 ];
 

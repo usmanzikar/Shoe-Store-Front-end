@@ -22,6 +22,10 @@ export default function ProductDetail() {
   const [activeMessage, setActiveMessage] = useState(0);
 
   useEffect(() => {
+    window.scrollTo({ top: 260, behavior: "auto" });
+  }, []);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setActiveMessage((prev) => (prev + 1) % salesMessages.length);
     }, 9000); // Change every 9 seconds

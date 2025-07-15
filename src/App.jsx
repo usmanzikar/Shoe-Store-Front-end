@@ -23,6 +23,7 @@ import SearchResultSection from './components/searchResultSection/SearchResultSe
 import ProductDetail from './pages/ProductDetail';
 import AllProductsCollection from './pages/AllProductsCollection';
 import CategoryPage from './components/categorySection/CategoryPage';
+import OfferPage from './pages/OfferPage';
 
 function App() {
 
@@ -93,6 +94,7 @@ useEffect(() => {
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/collection" element={<AllProductsCollection />} />
         <Route path="/category/:categorypage" element={<CategoryPage />} />
+        <Route path="/offerpage/:offerType" element={<OfferPage />} />
 
       </Routes>
     </>

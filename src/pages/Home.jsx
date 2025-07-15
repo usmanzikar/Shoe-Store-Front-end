@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import homeSlides from "../components/dummyData/homedummydata";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
+  const navigate = useNavigate();
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -64,6 +66,7 @@ export default function Home() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/collection')}
               className="bg-orange-500 text-white font-heading px-6 py-3 rounded-md shadow-lg hover:bg-orange-600 transition font-semibold"
             >
               Explore More
