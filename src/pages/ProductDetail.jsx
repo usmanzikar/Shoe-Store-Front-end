@@ -58,7 +58,7 @@ export default function ProductDetail() {
     <>
       <section className="bg-white min-h-screen pt-20  ">
         <DetailPageNav />
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 p-1">
           <ProductImageGallery images={product.image} />
 
           <div className="flex flex-col gap-4">

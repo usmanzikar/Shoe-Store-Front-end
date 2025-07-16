@@ -4,8 +4,11 @@ import allProducts from "../dummyData/allProductsCombined";
 import FilterSidebarProductCollection from "../productsCollection/FilterSidebarProductCollection";
 import LazyImage from "../lazy/LazyMotion";
 import { ShoppingCart } from "lucide-react";
-import detailnavimage from '../../assets/detailnavimg.jpg';
+import detailnavimage from "../../assets/detailnavimg.jpg";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../redux/slices/CartSlice";
+import { toast } from "react-hot-toast";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -50,6 +53,28 @@ export default function CategoryPage() {
   };
 
   const filtered = allProducts.filter(filterProducts);
+  const dispatch = useDispatch();
+
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation();
+    dispatch(addToCart(product));
+
+    toast.success(`${product.name} added to cart`, {
+      duration: 3000,
+      position: "top-center",
+      style: {
+        background: "#1F2937",
+        color: "#fff",
+        borderRadius: "8px",
+        padding: "12px 20px",
+        fontWeight: "500",
+      },
+      iconTheme: {
+        primary: "#f97316",
+        secondary: "#fff",
+      },
+    });
+  };
 
   // Adjust current page if filter changes
   useEffect(() => {
@@ -69,40 +94,40 @@ export default function CategoryPage() {
   return (
     <>
       <section
-      className="relative h-64 w-full flex items-center justify-center text-center text-white"
-      style={{
-        backgroundImage: `url(${detailnavimage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        marginTop: "60px",
-      }}
-    >
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-
-      {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="absolute top-10 left-4 z-20 bg-white text-black px-3 py-1 text-sm rounded hover:bg-orange-500 hover:text-white transition"
+        className="relative h-64 w-full flex items-center justify-center text-center text-white"
+        style={{
+          backgroundImage: `url(${detailnavimage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          marginTop: "60px",
+        }}
       >
-        ← Category
-      </button>
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
 
-      {/* Text Content */}
-      <div className="relative z-10">
-        <h1 className="text-3xl font-bold">All Collection</h1>
-        <p className="text-sm text-gray-200 mt-2">
-          <Link
-            to="/collection"
-            className="hover:text-orange-500 transition hover:cursor-pointer"
-          >
-            Shop
-          </Link>{" "}
-          &gt; {categorypage}
-        </p>
-      </div>
-    </section>
-    
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="absolute top-10 left-4 z-20 bg-white text-black px-3 py-1 text-sm rounded hover:bg-orange-500 hover:text-white transition"
+        >
+          ← Category
+        </button>
+
+        {/* Text Content */}
+        <div className="relative z-10">
+          <h1 className="text-3xl font-bold">All Collection</h1>
+          <p className="text-sm text-gray-200 mt-2">
+            <Link
+              to="/collection"
+              className="hover:text-orange-500 transition hover:cursor-pointer"
+            >
+              Shop
+            </Link>{" "}
+            &gt; {categorypage}
+          </p>
+        </div>
+      </section>
+
       <section className="p-6 flex flex-col md:flex-row gap-6">
         {/* Filter Sidebar */}
         <FilterSidebarProductCollection
@@ -187,7 +212,10 @@ export default function CategoryPage() {
                         <button className="px-4 py-1 text-sm bg-orange-500 text-white rounded-full hover:bg-orange-600 transition">
                           Shop Now
                         </button>
-                        <button className="p-2 rounded-full shadow hover:bg-orange-500 hover:text-white transition">
+                        <button
+                          className="p-2 rounded-full shadow hover:bg-orange-500 hover:text-white transition"
+                          onClick={(e) => handleAddToCart(e, product)}
+                        >
                           <ShoppingCart size={18} />
                         </button>
                       </div>

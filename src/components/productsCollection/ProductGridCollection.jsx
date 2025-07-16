@@ -3,6 +3,9 @@ import allProductsCombined from "../dummyData/allProductsCombined";
 import { ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import LazyImage from "../lazy/LazyMotion";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../redux/slices/CartSlice";
+import { toast } from 'react-hot-toast';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -34,6 +37,29 @@ export default function ProductGridCollection({ filters }) {
   };
 
   const filtered = allProductsCombined.filter(filterProducts);
+
+     const dispatch = useDispatch();
+     const handleAddToCart = (e, product) => {
+  e.stopPropagation();
+  dispatch(addToCart(product));
+
+  toast.success(`${product.name} added to cart`, {
+    duration: 3000,
+    position: 'top-center',
+    style: {
+      background: '#1F2937',
+      color: '#fff',
+      borderRadius: '8px',
+      padding: '12px 20px',
+      fontWeight: '500',
+    },
+    iconTheme: {
+      primary: '#f97316',
+      secondary: '#fff',
+    },
+  });
+};
+
 
   React.useEffect(() => {
     const newTotalPages = Math.max(
@@ -122,7 +148,9 @@ export default function ProductGridCollection({ filters }) {
                   <button className="px-4 py-1 text-sm bg-orange-500 text-white rounded-full hover:bg-orange-600 transition">
                     Shop Now
                   </button>
-                  <button className="p-2 rounded-full shadow hover:bg-orange-500 hover:text-white transition">
+                  <button className="p-2 rounded-full shadow hover:bg-orange-500 hover:text-white transition"
+                  onClick={(e) => handleAddToCart(e, product)}
+                  >
                     <ShoppingCart size={18} />
                   </button>
                 </div>

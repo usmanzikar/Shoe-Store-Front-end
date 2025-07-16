@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Menu, X, ShoppingCart, Search } from "lucide-react";
 import logo from "../../assets/logo.png";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -175,7 +175,9 @@ export default function Navbar() {
                 />
               </form>
             </div>
-            <ShoppingCart className="w-6 h-6 hover:text-orange-400 cursor-pointer transition" />
+            <Link to="/cart" className="relative">
+              <ShoppingCart className="w-6 h-6 hover:text-orange-400 cursor-pointer transition" />
+            </Link>
           </div>
         </nav>
 
@@ -402,7 +404,7 @@ export default function Navbar() {
             </div>
           </details>
 
-          <div className="mt-3">
+          <div className="mt-3 flex items-center gap-8">
             <form onSubmit={handleSubmit} className="flex items-center gap-2">
               <input
                 type="text"
@@ -418,6 +420,9 @@ export default function Navbar() {
                 Search
               </button>
             </form>
+            <Link to="/cart" className="relative">
+              <ShoppingCart className="w-6 h-6 hover:text-orange-400 cursor-pointer transition" />
+            </Link>
           </div>
         </div>
       )}

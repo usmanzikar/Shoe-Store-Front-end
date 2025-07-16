@@ -2,10 +2,12 @@ import React from "react";
 import dummyPerformanceProduct from "../dummyData/dummyPerformanceProduct";
 import { ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../redux/slices/CartSlice";
+import { toast } from "react-hot-toast";
 
 export default function ProductGridPerformance({ filters }) {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const filterProducts = (product) => {
     const { color, size, priceMax, category } = filters;
@@ -25,6 +27,27 @@ export default function ProductGridPerformance({ filters }) {
   };
 
   const filtered = dummyPerformanceProduct.filter(filterProducts);
+  const dispatch = useDispatch();
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation();
+    dispatch(addToCart(product));
+
+    toast.success(`${product.name} added to cart`, {
+      duration: 3000,
+      position: "top-center",
+      style: {
+        background: "#1F2937",
+        color: "#fff",
+        borderRadius: "8px",
+        padding: "12px 20px",
+        fontWeight: "500",
+      },
+      iconTheme: {
+        primary: "#f97316",
+        secondary: "#fff",
+      },
+    });
+  };
 
   return (
     <div className="w-full md:flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
@@ -60,7 +83,7 @@ export default function ProductGridPerformance({ filters }) {
               <p className="text-orange-600 font-bold mt-1">
                 PKR {product.price}
               </p>
-              
+
               {/* force height here */}
             </div>
 
@@ -69,7 +92,10 @@ export default function ProductGridPerformance({ filters }) {
               <button className="px-4 py-1 text-sm bg-orange-500 text-white rounded-full hover:bg-orange-600 transition">
                 Shop Now
               </button>
-              <button className="p-2 rounded-full shadow hover:bg-orange-500 hover:text-white transition">
+              <button
+                className="p-2 rounded-full shadow hover:bg-orange-500 hover:text-white transition"
+                onClick={(e) => handleAddToCart(e, product)}
+              >
                 <ShoppingCart size={18} />
               </button>
             </div>

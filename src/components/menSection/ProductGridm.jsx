@@ -2,6 +2,9 @@ import React from "react";
 import dummyProducts from "../dummyData/dummyMenProduct";
 import { ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../redux/slices/CartSlice";
+import { toast } from 'react-hot-toast';
 
 export default function ProductGridm({ filters }) {
   const navigate = useNavigate();
@@ -23,6 +26,30 @@ export default function ProductGridm({ filters }) {
   };
 
   const filtered = dummyProducts.filter(filterProducts);
+
+   const dispatch = useDispatch();
+  
+   const handleAddToCart = (e, product) => {
+  e.stopPropagation();
+  dispatch(addToCart(product));
+
+  toast.success(`${product.name} added to cart`, {
+    duration: 3000,
+    position: 'top-center',
+    style: {
+      background: '#1F2937',
+      color: '#fff',
+      borderRadius: '8px',
+      padding: '12px 20px',
+      fontWeight: '500',
+    },
+    iconTheme: {
+      primary: '#f97316',
+      secondary: '#fff',
+    },
+  });
+};
+
 
   return (
     
@@ -74,10 +101,7 @@ export default function ProductGridm({ filters }) {
                 Shop Now
               </button>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Add to cart logic here
-                }}
+               onClick={(e) => handleAddToCart(e, product)}
                 className="p-2 rounded-full shadow hover:bg-orange-500 hover:text-white transition"
               >
                 <ShoppingCart size={18} />

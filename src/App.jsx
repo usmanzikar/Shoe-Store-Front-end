@@ -24,6 +24,7 @@ import ProductDetail from './pages/ProductDetail';
 import AllProductsCollection from './pages/AllProductsCollection';
 import CategoryPage from './components/categorySection/CategoryPage';
 import OfferPage from './pages/OfferPage';
+import CartPage from './pages/CartPage';
 
 function App() {
 
@@ -95,6 +96,7 @@ useEffect(() => {
         <Route path="/collection" element={<AllProductsCollection />} />
         <Route path="/category/:categorypage" element={<CategoryPage />} />
         <Route path="/offerpage/:offerType" element={<OfferPage />} />
+        <Route path="/cart" element={<CartPage />} />
 
       </Routes>
     </>

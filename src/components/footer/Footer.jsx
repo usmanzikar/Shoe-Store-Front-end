@@ -14,20 +14,20 @@ export default function Footer() {
         
         {/* Logo + Description */}
         <div>
+          <a href="/">
           <img src={logo} alt="Shoe Logo" className="h-14 w-auto cursor-pointer" />
+          </a>
           <p className="text-sm text-gray-400">
             Step up your style. Explore a range of trendy and comfortable footwear for every occasion.
           </p>
         </div>
-
         {/* Quick Links */}
         <div>
           <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
           <ul className="space-y-2 text-gray-300">
-            <li><a href="#" className="hover:text-orange-400 transition">Home</a></li>
-            <li><a href="#" className="hover:text-orange-400 transition">Shop</a></li>
-            <li><a href="#" className="hover:text-orange-400 transition">About</a></li>
-            <li><a href="#" className="hover:text-orange-400 transition">Contact</a></li>
+            <li><a href="/" className="hover:text-orange-400 transition">Home</a></li>
+            <li><a href="/collection" className="hover:text-orange-400 transition">Shop</a></li>
+            <li><a href="#" className="hover:text-orange-400 transition">Cart</a></li>
           </ul>
         </div>
 
@@ -35,10 +35,10 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-semibold mb-4">Categories</h3>
           <ul className="space-y-2 text-gray-300">
-            <li><a href="#" className="hover:text-orange-400 transition">Sneakers</a></li>
-            <li><a href="#" className="hover:text-orange-400 transition">Formal</a></li>
-            <li><a href="#" className="hover:text-orange-400 transition">Boots</a></li>
-            <li><a href="#" className="hover:text-orange-400 transition">Loafers</a></li>
+            <li><a href="/menswear" className="hover:text-orange-400 transition">Men Wears</a></li>
+            <li><a href="/womenwear" className="hover:text-orange-400 transition">Women Wears</a></li>
+            <li><a href="/performance" className="hover:text-orange-400 transition">Performance Shoes</a></li>
+            <li><a href="/casual" className="hover:text-orange-400 transition">Casual Shoes</a></li>
           </ul>
         </div>
 
