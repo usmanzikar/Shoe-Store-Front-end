@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Menu, X, ShoppingCart, Search } from "lucide-react";
 import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext"; // import your auth context
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -16,10 +17,12 @@ export default function Navbar() {
 
   const [query, setQuery] = useState("");
 
+  const { user } = useAuth(); // get user from context
+
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevent page reload
     if (query.trim() !== "") {
-      navigate(`/${query.trim()}`); // Navigate to /search/boots
+      navigate(`/${query.trim()}`); // Navigate to search results
     }
   };
 
@@ -93,7 +96,7 @@ export default function Navbar() {
                             navigate(`/${col.path}`, {
                               state: { category: link },
                             });
-                            setOpenDropdown(null); // ❗ Close dropdown after click
+                            setOpenDropdown(null); // Close dropdown after click
                           }}
                           className="block hover:bg-orange-500 hover:text-white px-2 py-1 rounded transition text-left w-full text-gray-800"
                         >
@@ -128,6 +131,7 @@ export default function Navbar() {
                   {[
                     { label: "FAQ", target: "faq" },
                     { label: "Contact Us", target: "contact" },
+                    { label: "About", target: "about" },
                   ].map(({ label, target }) => (
                     <button
                       key={label}
@@ -144,13 +148,6 @@ export default function Navbar() {
               </div>
             )}
           </div>
-
-          <button
-            onClick={() => navigate("/", { state: { scrollTo: "about" } })}
-            className="hover:text-orange-400 font-medium transition"
-          >
-            About
-          </button>
           <button
             onClick={() => navigate("/", { state: { scrollTo: "offer" } })}
             className="hover:text-orange-400 font-medium transition"
@@ -158,6 +155,7 @@ export default function Navbar() {
             Offers
           </button>
 
+          {/* Search + Cart + Profile / Login */}
           <div className="flex items-center gap-4">
             <div className="relative">
               <form onSubmit={handleSubmit} className="flex items-center gap-2">
@@ -175,9 +173,30 @@ export default function Navbar() {
                 />
               </form>
             </div>
-            <Link to="/cart" className="relative">
-              <ShoppingCart className="w-6 h-6 hover:text-orange-400 cursor-pointer transition" />
-            </Link>
+
+            {/* Show cart icon ONLY if user is logged in */}
+            {user && (
+              <Link to="/cart" className="relative">
+                <ShoppingCart className="w-6 h-6 hover:text-orange-400 cursor-pointer transition" />
+              </Link>
+            )}
+
+            {/* Show Profile if logged in, else Login */}
+            {user ? (
+              <button
+                onClick={() => navigate("/profile")}
+                className="hover:text-orange-400 font-medium transition"
+              >
+                My Profile
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate("/login")}
+                className="hover:text-orange-400 font-medium transition"
+              >
+                Login
+              </button>
+            )}
           </div>
         </nav>
 
@@ -403,6 +422,28 @@ export default function Navbar() {
               </button>
             </div>
           </details>
+            {/* Show Profile if logged in, else Login */}
+            {user ? (
+              <button
+                onClick={() => {
+                  navigate("/profile");
+                  setIsOpen(false);
+                }}
+                className="block w-full text-left py-2 border-b border-white/20 hover:text-orange-400"
+              >
+                My Profile
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  navigate("/login");
+                  setIsOpen(false);
+                }}
+                className="block w-full text-left py-2 border-b border-white/20 hover:text-orange-400"
+              >
+                Login
+              </button>
+            )}
 
           <div className="mt-3 flex items-center gap-8">
             <form onSubmit={handleSubmit} className="flex items-center gap-2">
@@ -420,9 +461,13 @@ export default function Navbar() {
                 Search
               </button>
             </form>
-            <Link to="/cart" className="relative">
-              <ShoppingCart className="w-6 h-6 hover:text-orange-400 cursor-pointer transition" />
-            </Link>
+
+            {/* Show cart icon ONLY if user is logged in */}
+            {user && (
+              <Link to="/cart" className="relative">
+                <ShoppingCart className="w-6 h-6 hover:text-orange-400 cursor-pointer transition" />
+              </Link>
+            )}
           </div>
         </div>
       )}

@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaTrashAlt } from "react-icons/fa";
 import detailnavimage from "../assets/detailnavimg.jpg";
 import { removeFromCart, updateQuantity } from "../redux/slices/CartSlice";
-import { toast } from "react-hot-toast"; 
+import { toast } from "react-hot-toast";
 
 export default function CartPage() {
   const cartItems = useSelector((state) => state.cart.items);
@@ -144,7 +144,10 @@ export default function CartPage() {
                 <span>Total</span>
                 <span>{total.toFixed(2)} PKR</span>
               </div>
-              <button className="w-full mt-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition">
+              <button
+                onClick={() => navigate("/checkout")}
+                className="w-full mt-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition"
+              >
                 Proceed to Checkout
               </button>
             </div>
