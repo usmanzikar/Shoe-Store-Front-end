@@ -1,10 +1,10 @@
 // src/pages/OfferPage.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import allProductsCombined from "../components/dummyData/allProductsCombined";
 import FilterSidebarProductCollection from "../components/productsCollection/FilterSidebarProductCollection";
 import { motion } from "framer-motion";
 import detailnavimage from "../assets/detailnavimg.jpg";
+import { fetchProducts, fetchProductById } from "../utils/api";
 
 const offers = [
   { key: "70-off", label: "70% Off", colorClass: "text-orange-500" },
@@ -15,6 +15,7 @@ const offers = [
 export default function OfferPage() {
   const { offerType } = useParams();
   const navigate = useNavigate();
+
   const [selectedOffer, setSelectedOffer] = useState(offerType);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -24,20 +25,79 @@ export default function OfferPage() {
     priceMax: 5000,
   });
 
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load all products from API on mount
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await fetchProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error("Error fetching offer products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, []);
+
+  // Update selectedOffer on route change
   useEffect(() => {
     setSelectedOffer(offerType);
   }, [offerType]);
 
+  // Map route param to offer string in product data
+  const offerMapping = {
+    "70-off": "70%",
+    "50-off": "50%",
+    "30-off": "30%",
+  };
+
+  // Filter products based on offer and filters
   const filteredProducts = useMemo(() => {
-    return allProductsCombined.filter((product) => {
-      if (product.offer !== selectedOffer) return false;
+    const normalizedOffer = offerMapping[selectedOffer] || selectedOffer;
+
+    return products.filter((product) => {
+      if (!product.offer) return false;
+      if (product.offer.toLowerCase() !== normalizedOffer.toLowerCase()) return false;
+
       if (filters.gender && product.gender !== filters.gender) return false;
-      if (filters.color && product.color !== filters.color) return false;
-      if (filters.size && !product.sizes.includes(filters.size)) return false;
+      if (
+        filters.color &&
+        (!product.colors ||
+          !product.colors.map((c) => c.toLowerCase()).includes(filters.color.toLowerCase()))
+      )
+        return false;
+      if (
+        filters.size &&
+        (!product.sizes || !product.sizes.includes(filters.size))
+      )
+        return false;
       if (product.price > filters.priceMax) return false;
+
       return true;
     });
-  }, [selectedOffer, filters]);
+  }, [products, selectedOffer, filters]);
+
+  // Handle click: fetch product by id, then navigate passing product data in state
+  const handleProductClick = async (id) => {
+    try {
+      const productDetail = await fetchProductById(id);
+      navigate(`/product/${id}`, { state: { product: productDetail } });
+    } catch (error) {
+      console.error("Error fetching product details:", error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <p className="text-center text-gray-500 mt-10">
+        Loading {selectedOffer} products...
+      </p>
+    );
+  }
 
   return (
     <>
@@ -59,7 +119,7 @@ export default function OfferPage() {
           ← Back
         </button>
         <div className="relative z-10">
-          <h1 className="text-3xl font-bold">offers</h1>
+          <h1 className="text-3xl font-bold">Offers</h1>
           <p className="text-sm text-gray-200 mt-2">
             <Link
               to="/collection"
@@ -71,18 +131,19 @@ export default function OfferPage() {
           </p>
         </div>
       </section>
-      
+
+      {/* Main Section */}
       <section className="max-w-7xl mx-auto p-8 flex flex-col md:flex-row gap-8">
-           {/* Filter Toggle menue */}
+        {/* Filter Toggle (Mobile) */}
         <div className="md:hidden flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">All Offers</h2>
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="bg-orange-500 text-white px-3 py-1 rounded shadow hover:bg-orange-600"
-        >
-          ☰ Filters
-        </button>
-      </div>
+          <h2 className="text-xl font-bold">All Offers</h2>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="bg-orange-500 text-white px-3 py-1 rounded shadow hover:bg-orange-600"
+          >
+            ☰ Filters
+          </button>
+        </div>
 
         {/* Filter Sidebar - Desktop */}
         <div className="hidden md:block">
@@ -156,7 +217,8 @@ export default function OfferPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {filteredProducts.map((product) => (
                 <motion.div
-                  key={product.id}
+                  key={product._id}
+                  onClick={() => handleProductClick(product._id)}
                   layout
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -164,13 +226,13 @@ export default function OfferPage() {
                   className="border rounded-md p-4 shadow hover:shadow-lg cursor-pointer"
                 >
                   <img
-                    src={product.image[0]}
+                    src={product.images?.[0]}
                     alt={product.name}
                     className="w-full h-48 object-cover rounded-md mb-3"
                   />
                   <h3 className="font-semibold text-lg">{product.name}</h3>
                   <p className="text-orange-600 font-bold">
-                    PKR {product.price.toFixed(2)}
+                    PKR {product.price}
                   </p>
                 </motion.div>
               ))}

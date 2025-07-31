@@ -1,7 +1,10 @@
 import { Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { Element, scroller } from 'react-scroll';
 import { useEffect } from 'react';
-import { useAuth } from './context/AuthContext'; // ✅ Make sure this is imported
+import { useAuth } from './context/AuthContext';
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setCart } from "./redux/slices/CartSlice";
 
 import Navbar from './components/navbar/Navbar';
 import Home from './pages/Home';
@@ -50,6 +53,36 @@ function App() {
       navigate('.', { replace: true, state: null });
     }
   }, [location, navigate]);
+//cart useeffect
+   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+    try {
+  const token = localStorage.getItem("token");
+  console.log("🔑 Token in fetchCart:", token);
+
+  const res = await axios.get("http://localhost:5000/api/cart", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    withCredentials: true // optional, in case cookies or CORS issues
+  });
+
+  console.log("✅ Cart Response:", res.data);
+  dispatch(setCart(res.data.items));
+} catch (err) {
+  console.error("❌ Error fetching cart:", err.response?.data || err.message);
+}
+
+    };
+
+    fetchCart();
+  }, [dispatch]);
 
   return (
     <>

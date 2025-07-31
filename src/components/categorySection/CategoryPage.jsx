@@ -1,63 +1,139 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import allProducts from "../dummyData/allProductsCombined";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import FilterSidebarProductCollection from "../productsCollection/FilterSidebarProductCollection";
 import LazyImage from "../lazy/LazyMotion";
 import { ShoppingCart } from "lucide-react";
 import detailnavimage from "../../assets/detailnavimg.jpg";
-import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { addToCart } from "../../redux/slices/CartSlice";
+import axios from "axios";
+import { setCart } from "../../redux/slices/CartSlice";
 import { toast } from "react-hot-toast";
+import { fetchProducts } from "../../utils/api"; // ✅ API Import
 
 const ITEMS_PER_PAGE = 6;
 
 export default function CategoryPage() {
   const { categorypage } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [filters, setFilters] = useState({
     gender: "",
     color: "",
     size: "",
     priceMax: 5000,
-    categorypage: categorypage || "", // Set initial category filter
+    categorypage: categorypage || "",
   });
 
+  const [products, setProducts] = useState([]); // ✅ Products from API
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Dynamic Filtering Function
-  const filterProducts = (product) => {
-    const { color, size, priceMax, category, gender } = filters;
-    let valid = true;
+  // ✅ Fetch products from API
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await fetchProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, []);
 
+  // ✅ Normalize helper for category matching
+  const normalize = (str) => str?.toLowerCase().replace(/[-\s]/g, "");
+
+  // ✅ Filter products
+  const filterProducts = (product) => {
+    const { color, size, priceMax, categorypage, gender } = filters;
+
+    // Gender filter
     if (gender) {
       const genders = Array.isArray(product.gender)
         ? product.gender.map((g) => g.toLowerCase())
         : [product.gender?.toLowerCase()];
       if (!genders.includes(gender.toLowerCase())) return false;
     }
-    //this is the logic to fetch the categorypage items
+
+    // CategoryPage filter (normalize to avoid hyphen/space mismatch)
     if (
       categorypage &&
-      product.categorypage.toLowerCase() !== categorypage.toLowerCase()
+      normalize(product.categorypage) !== normalize(categorypage)
     )
-      valid = false;
+      return false;
 
-    if (color && product.color !== color) valid = false;
-    if (size && (!product.sizes || !product.sizes.includes(size)))
-      valid = false;
-    if (priceMax && product.price > priceMax) valid = false;
+    // Color filter
+    if (
+      color &&
+      (!product.colors ||
+        !product.colors
+          .map((c) => c.toLowerCase())
+          .includes(color.toLowerCase()))
+    )
+      return false;
 
-    return valid;
+    // Size filter
+    if (
+      size &&
+      (!product.sizes || !product.sizes.map(String).includes(String(size)))
+    )
+      return false;
+
+    // Price filter
+    if (priceMax && Number(product.price) > Number(priceMax)) return false;
+
+    return true;
   };
 
-  const filtered = allProducts.filter(filterProducts);
-  const dispatch = useDispatch();
+  const filtered = products.filter(filterProducts);
 
-  const handleAddToCart = (e, product) => {
-    e.stopPropagation();
-    dispatch(addToCart(product));
+  // ✅ Adjust page if filters change
+  useEffect(() => {
+    const newTotalPages = Math.max(
+      1,
+      Math.ceil(filtered.length / ITEMS_PER_PAGE)
+    );
+    if (currentPage > newTotalPages) {
+      setCurrentPage(newTotalPages);
+    }
+  }, [filtered.length]);
+
+  // ✅ Pagination logic
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginated = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+  // ✅ Add to cart
+  const handleAddToCart = async (e) => {
+  e.stopPropagation();
+
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Please log in to add items to cart");
+      return;
+    }
+
+    const axiosConfig = {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      withCredentials: true
+    };
+
+    const response = await axios.post(
+      `http://localhost:5000/api/cart/item`,
+      { productId: product._id, quantity: 1 },
+      axiosConfig
+    );
+
+    // Update Redux with returned cart from backend
+    dispatch(setCart(response.data.items));
 
     toast.success(`${product.name} added to cart`, {
       duration: 3000,
@@ -74,25 +150,23 @@ export default function CategoryPage() {
         secondary: "#fff",
       },
     });
-  };
+  } catch (error) {
+    console.error("Add to cart error:", error.response?.data || error.message);
+    toast.error(error.response?.data?.message || "Failed to add to cart");
+  }
+};
 
-  // Adjust current page if filter changes
-  useEffect(() => {
-    const newTotalPages = Math.max(
-      1,
-      Math.ceil(filtered.length / ITEMS_PER_PAGE)
+  if (loading) {
+    return (
+      <p className="text-center text-gray-500 mt-10">
+        Loading {categorypage} products...
+      </p>
     );
-    if (currentPage > newTotalPages) {
-      setCurrentPage(newTotalPages);
-    }
-  }, [filtered.length]);
-
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginated = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+  }
 
   return (
     <>
+      {/* Banner */}
       <section
         className="relative h-64 w-full flex items-center justify-center text-center text-white"
         style={{
@@ -102,18 +176,13 @@ export default function CategoryPage() {
           marginTop: "60px",
         }}
       >
-        {/* Overlay */}
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-
-        {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
           className="absolute top-10 left-4 z-20 bg-white text-black px-3 py-1 text-sm rounded hover:bg-orange-500 hover:text-white transition"
         >
           ← Category
         </button>
-
-        {/* Text Content */}
         <div className="relative z-10">
           <h1 className="text-3xl font-bold">All Collection</h1>
           <p className="text-sm text-gray-200 mt-2">
@@ -128,8 +197,9 @@ export default function CategoryPage() {
         </div>
       </section>
 
+      {/* Main Section */}
       <section className="p-6 flex flex-col md:flex-row gap-6">
-        {/* Filter Sidebar */}
+        {/* Sidebar */}
         <FilterSidebarProductCollection
           filters={filters}
           setFilters={setFilters}
@@ -147,15 +217,15 @@ export default function CategoryPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginated.map((product) => (
                 <div
-                  key={product.id}
-                  onClick={() => navigate(`/product/${product.id}`)}
+                  key={product._id}
+                  onClick={() => navigate(`/product/${product._id}`)}
                   className="group perspective-[1000px] w-full max-w-[320px] mx-auto cursor-pointer"
                 >
                   <div className="relative w-full h-[380px] transition-transform duration-700 transform-style-3d group-hover:rotate-y-180">
                     {/* Front */}
                     <div className="absolute w-full h-full backface-hidden rounded-xl shadow overflow-hidden">
                       <LazyImage
-                        src={product.image[0]}
+                        src={product.images?.[0]}
                         alt={product.name}
                         className="rounded-md"
                         skeletonClass="h-full w-full"
@@ -166,7 +236,7 @@ export default function CategoryPage() {
                     <div
                       className="absolute w-full h-full backface-hidden rotate-y-180 rounded-xl shadow-xl p-5 flex flex-col justify-between text-white"
                       style={{
-                        backgroundImage: `url(${product.image[0]})`,
+                        backgroundImage: `url(${product.images?.[0]})`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                         backgroundColor: "rgba(0, 0, 0, 0.6)",
@@ -194,18 +264,24 @@ export default function CategoryPage() {
                           <span className="font-semibold text-gray-300">
                             Color:
                           </span>
-                          <span>{product.color}</span>
+                          <span>
+                            {Array.isArray(product.colors)
+                              ? product.colors.join(", ")
+                              : product.colors}
+                          </span>
                         </div>
                         <div className="flex justify-between mt-1">
                           <span className="font-semibold text-orange-400">
                             Price:
                           </span>
-                          <span className="font-bold">PKR {product.price}</span>
+                          <span className="font-bold">
+                            PKR {product.price}
+                          </span>
                         </div>
                       </div>
 
                       <p className="text-xs text-gray-200 mt-3 italic line-clamp-2">
-                        {product.description}
+                        {product.shortDesc}
                       </p>
 
                       <div className="flex justify-between items-center mt-4">

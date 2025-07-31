@@ -1,22 +1,83 @@
-import React from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { FaTrashAlt } from "react-icons/fa";
 import detailnavimage from "../assets/detailnavimg.jpg";
-import { removeFromCart, updateQuantity } from "../redux/slices/CartSlice";
 import { toast } from "react-hot-toast";
 
 export default function CartPage() {
-  const cartItems = useSelector((state) => state.cart.items);
-  const dispatch = useDispatch();
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Get auth token from localStorage or context (adjust this part to your auth setup)
+  const token = localStorage.getItem("token");
+
+  // Axios config with Authorization header
+  const axiosConfig = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+
+  // Fetch cart on mount
+useEffect(() => {
+  async function fetchCart() {
+    try {
+      setLoading(true);
+      const response = await axios.get("http://localhost:5000/api/cart", {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true
+      });
+
+      console.log("Cart API response:", response.data);
+
+      setCartItems(response.data.items || response.data.cart?.items || []);
+    } catch (error) {
+      toast.error("Failed to load cart");
+      console.error("Cart fetch error:", error.response?.data || error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+  fetchCart();
+}, []);
+
+
+  // Update quantity (calls API and updates state)
+  const updateQuantity = async (productId, newQuantity) => {
+    if (newQuantity < 1) return;
+    try {
+      const response = await axios.post(
+        "/api/cart/item",
+        { productId, quantity: newQuantity },
+        axiosConfig
+      );
+      setCartItems(response.data.items);
+    } catch {
+      toast.error("Failed to update quantity");
+    }
+  };
+
+  // Remove item (calls API and updates state)
+  const removeItem = async (productId) => {
+    try {
+      const response = await axios.delete(`/api/cart/item/${productId}`, axiosConfig);
+      setCartItems(response.data.items);
+      toast.success("Item removed from cart");
+    } catch {
+      toast.error("Failed to remove item");
+    }
+  };
+
   const subtotal = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+    (acc, item) => acc + (item.productId.price || 0) * item.quantity,
     0
   );
   const tax = +(subtotal * 0.1).toFixed(2);
   const total = +(subtotal + tax).toFixed(2);
+
+  if (loading) {
+    return <div className="pt-28 text-center">Loading cart...</div>;
+  }
 
   return (
     <>
@@ -69,65 +130,55 @@ export default function CartPage() {
         ) : (
           <div className="grid md:grid-cols-3 gap-6">
             <div className="md:col-span-2 space-y-4">
-              {cartItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center gap-4 p-4 bg-white shadow rounded-lg"
-                >
-                  <img
-                    src={item.image[0]}
-                    alt={item.name}
-                    className="w-24 h-24 object-cover rounded"
-                  />
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-lg">{item.name}</h4>
-                    <p className="text-gray-500">{item.price} PKR</p>
-                    <div className="mt-2 flex items-center gap-2">
-                      <button
-                        onClick={() =>
-                          dispatch(updateQuantity({ id: item.id, amount: -1 }))
-                        }
-                        className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                      >
-                        -
-                      </button>
-                      <span className="px-2">{item.quantity}</span>
-                      <button
-                        onClick={() =>
-                          dispatch(updateQuantity({ id: item.id, amount: 1 }))
-                        }
-                        className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      dispatch(removeFromCart(item.id));
-                      toast.success(`${item.name} removed from cart`, {
-                        duration: 3000,
-                        position: "top-center",
-                        style: {
-                          background: "#1F2937",
-                          color: "#fff",
-                          borderRadius: "8px",
-                          padding: "12px 20px",
-                          fontWeight: "500",
-                        },
-                        iconTheme: {
-                          primary: "#c41307ff",
-                          secondary: "#fff",
-                        },
-                      });
-                    }}
-                    className="text-red-500 hover:text-red-700"
+              {cartItems.map((item) => {
+                const product = item.productId; // populated product data
+                return (
+                  <div
+                    key={product._id}
+                    className="flex items-center gap-4 p-4 bg-white shadow rounded-lg"
                   >
-                    <FaTrashAlt />
-                  </button>
-                </div>
-              ))}
+                    <img
+                      src={
+                        Array.isArray(product.images) && product.images.length > 0
+                          ? product.images[0]
+                          : "https://via.placeholder.com/96"
+                      }
+                      alt={product.name}
+                      className="w-24 h-24 object-cover rounded"
+                    />
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-lg">{product.name}</h4>
+                      <p className="text-gray-500">{product.price} PKR</p>
+                      <div className="mt-2 flex items-center gap-2">
+                        <button
+                          onClick={() =>
+                            updateQuantity(product._id, item.quantity - 1)
+                          }
+                          className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                        >
+                          -
+                        </button>
+                        <span className="px-2">{item.quantity}</span>
+                        <button
+                          onClick={() =>
+                            updateQuantity(product._id, item.quantity + 1)
+                          }
+                          className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => removeItem(product._id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <FaTrashAlt />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="bg-white p-6 shadow rounded-lg">

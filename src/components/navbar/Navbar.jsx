@@ -69,7 +69,7 @@ export default function Navbar() {
                     {
                       title: "Men's Wear",
                       path: "menswear",
-                      links: ["Sneakers", "Loafers", "Boots", "Sandals"],
+                      links: ["Sneakers", "Loafers", "Boots", "Formals"],
                     },
                     {
                       title: "Women's Wear",
@@ -249,7 +249,7 @@ export default function Navbar() {
                 </button>
                 {activeSubMenu === "men" && (
                   <div className="pl-4">
-                    {["Sneakers", "Boots", "Loafers", "Sandals"].map(
+                    {["Sneakers", "Boots", "Loafers", "Formals"].map(
                       (category) => (
                         <button
                           key={category}

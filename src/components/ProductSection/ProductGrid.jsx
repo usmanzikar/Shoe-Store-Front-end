@@ -7,8 +7,8 @@ export default function ProductGrid({ products }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
       {products.map((p) => (
-        <ProductCard key={p.id}  
-        onClick={() => navigate(`/product/${p.id}`)}
+        <ProductCard key={p._id}  
+        onClick={() => navigate(`/product/${p._id}`)}
         product={p}
         />
       ))}

@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import ProductGrid from "../components/ProductSection/ProductGrid";
 import ProductFilter from "../components/ProductSection/ProductFilter";
 import { useNavigate } from "react-router-dom";
-import allProductsCombined from "../components/dummyData/allProductsCombined"; // your full product list
+import { fetchProducts } from "../utils/api";
 
 const ITEMS_PER_LOAD = 6;
 const MAX_VISIBLE = 12; // 4 rows × 3 items
@@ -11,13 +11,26 @@ export default function Products() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState("Shop All");
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_LOAD);
+  const [products, setProducts] = useState([]);
+
+  //fetch api for products
+   useEffect(() => {
+    (async () => {
+      try {
+        const data = await fetchProducts();
+        setProducts(data);
+      } catch (err) {
+        console.error("❌ Error fetching products:", err);
+      }
+    })();
+  }, []);
 
   const categories = ["Shop All", "Sneakers", "Formal", "Boots", "Loafers"];
 
   const filtered =
     filter === "Shop All"
-      ? allProductsCombined
-      : allProductsCombined.filter(
+      ? products
+      : products.filter(
           (p) => p.category.toLowerCase() === filter.toLowerCase()
         );
 

@@ -9,3 +9,13 @@ export const createOrder = (orderData) => {
 export const getOrders = () => {
   return axios.get(`${API_BASE_URL}/orders`);
 };
+
+export const fetchProducts = async () => {
+  const res = await axios.get(`${API_BASE_URL}/products`);
+  return res.data;
+};
+
+export const fetchProductById = async (id) => {
+  const res = await axios.get(`${API_BASE_URL}/products/${id}`);
+  return res.data;
+};
