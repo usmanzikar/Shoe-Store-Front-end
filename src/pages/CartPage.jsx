@@ -10,66 +10,84 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Get auth token from localStorage or context (adjust this part to your auth setup)
+  const BASE_URL = "http://localhost:5000";
   const token = localStorage.getItem("token");
 
-  // Axios config with Authorization header
   const axiosConfig = {
     headers: { Authorization: `Bearer ${token}` },
+    withCredentials: true,
   };
 
-  // Fetch cart on mount
-useEffect(() => {
-  async function fetchCart() {
-    try {
-      setLoading(true);
-      const response = await axios.get("http://localhost:5000/api/cart", {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true
-      });
+  // Fetch Cart
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`${BASE_URL}/api/cart`, axiosConfig);
+        setCartItems(res.data.items || []);
+      } catch (err) {
+        console.error("Cart fetch error:", err.response?.data || err.message);
+        toast.error("Failed to load cart");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCart();
+  }, []);
 
-      console.log("Cart API response:", response.data);
-
-      setCartItems(response.data.items || response.data.cart?.items || []);
-    } catch (error) {
-      toast.error("Failed to load cart");
-      console.error("Cart fetch error:", error.response?.data || error.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-  fetchCart();
-}, []);
-
-
-  // Update quantity (calls API and updates state)
+  // Update Quantity
   const updateQuantity = async (productId, newQuantity) => {
     if (newQuantity < 1) return;
     try {
-      const response = await axios.post(
-        "/api/cart/item",
+      const res = await axios.post(
+        `${BASE_URL}/api/cart/item`,
         { productId, quantity: newQuantity },
         axiosConfig
       );
-      setCartItems(response.data.items);
-    } catch {
-      toast.error("Failed to update quantity");
+      setCartItems(res.data.items);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update quantity");
     }
   };
 
-  // Remove item (calls API and updates state)
+  // Remove Item with confirmation
   const removeItem = async (productId) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to remove this item from your cart?"
+    );
+    if (!confirmed) return;
+
     try {
-      const response = await axios.delete(`/api/cart/item/${productId}`, axiosConfig);
-      setCartItems(response.data.items);
+      const res = await axios.delete(
+        `${BASE_URL}/api/cart/item/${productId}`,
+        axiosConfig
+      );
+      setCartItems(res.data.items);
       toast.success("Item removed from cart");
-    } catch {
-      toast.error("Failed to remove item");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to remove item");
     }
   };
 
+  // Clear Cart with confirmation
+  const clearCart = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to clear your entire cart?"
+    );
+    if (!confirmed) return;
+
+    try {
+      await axios.delete(`${BASE_URL}/api/cart`, axiosConfig);
+      setCartItems([]);
+      toast.success("Cart cleared");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to clear cart");
+    }
+  };
+
+  // Calculate totals
   const subtotal = cartItems.reduce(
-    (acc, item) => acc + (item.productId.price || 0) * item.quantity,
+    (acc, item) => acc + (item.productId?.price || 0) * item.quantity,
     0
   );
   const tax = +(subtotal * 0.1).toFixed(2);
@@ -81,7 +99,7 @@ useEffect(() => {
 
   return (
     <>
-      {/* Top section with banner */}
+      {/* Banner */}
       <section
         className="relative h-64 w-full flex items-center justify-center text-center text-white"
         style={{
@@ -107,15 +125,14 @@ useEffect(() => {
             >
               Shop
             </Link>{" "}
-            &gt; Products
+            &gt; Cart
           </p>
         </div>
       </section>
 
+      {/* Cart Section */}
       <div className="min-h-screen px-4 py-10 bg-gray-50">
-        <h2 className="text-3xl font-bold mb-6 text-center">
-          Your Shopping Cart
-        </h2>
+        <h2 className="text-3xl font-bold mb-6 text-center">Your Shopping Cart</h2>
 
         {cartItems.length === 0 ? (
           <div className="text-center">
@@ -129,9 +146,10 @@ useEffect(() => {
           </div>
         ) : (
           <div className="grid md:grid-cols-3 gap-6">
+            {/* Cart Items */}
             <div className="md:col-span-2 space-y-4">
               {cartItems.map((item) => {
-                const product = item.productId; // populated product data
+                const product = item.productId;
                 return (
                   <div
                     key={product._id}
@@ -151,23 +169,26 @@ useEffect(() => {
                       <p className="text-gray-500">{product.price} PKR</p>
                       <div className="mt-2 flex items-center gap-2">
                         <button
-                          onClick={() =>
-                            updateQuantity(product._id, item.quantity - 1)
-                          }
+                          onClick={() => updateQuantity(product._id, item.quantity - 1)}
                           className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                          disabled={item.quantity <= 1}
                         >
-                          -
+                          −
                         </button>
                         <span className="px-2">{item.quantity}</span>
                         <button
-                          onClick={() =>
-                            updateQuantity(product._id, item.quantity + 1)
-                          }
+                          onClick={() => updateQuantity(product._id, item.quantity + 1)}
                           className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                          disabled={item.quantity >= product.stock} // Prevent over stock
                         >
-                          +
+                          ＋
                         </button>
                       </div>
+                      {item.quantity >= product.stock && (
+                        <p className="text-xs text-red-500">
+                          Only {product.stock} items in Stock
+                        </p>
+                      )}
                     </div>
 
                     <button
@@ -181,6 +202,7 @@ useEffect(() => {
               })}
             </div>
 
+            {/* Summary */}
             <div className="bg-white p-6 shadow rounded-lg">
               <h3 className="text-xl font-semibold mb-4">Order Summary</h3>
               <div className="flex justify-between mb-2">
@@ -195,11 +217,20 @@ useEffect(() => {
                 <span>Total</span>
                 <span>{total.toFixed(2)} PKR</span>
               </div>
+
               <button
                 onClick={() => navigate("/checkout")}
                 className="w-full mt-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition"
               >
                 Proceed to Checkout
+              </button>
+
+              {/* Clear Cart Button */}
+              <button
+                onClick={clearCart}
+                className="w-full mt-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
+              >
+                Clear Cart
               </button>
             </div>
           </div>

@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux"; // ✅ Get cart state
 import axios from "axios";
 import { setCart } from "../../redux/slices/CartSlice";
 import { toast } from "react-hot-toast";
-import { fetchProducts } from "../../utils/api"; // ✅ Fetch API
+import { fetchProducts } from "../../utils/api";
 
 export default function ProductGridCasual({ filters }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.cart.items); // ✅ Get cart from Redux
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch products from API
+  // ✅ Fetch products
   useEffect(() => {
     const loadProducts = async () => {
       try {
@@ -56,54 +57,50 @@ export default function ProductGridCasual({ filters }) {
 
   const filtered = products.filter(filterProducts);
 
-  // ✅ Add to Cart
- const handleAddToCart = async (e) => {
-  e.stopPropagation();
+  // ✅ Add to Cart (Fix: accept product param + duplicate check)
+  const handleAddToCart = async (e, product) => {
+    e.stopPropagation();
 
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("Please log in to add items to cart");
-      return;
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Please log in to add items to cart");
+        return;
+      }
+
+      // 🔹 Check if already in cart
+      const alreadyInCart = cartItems.some(
+        (item) => item.productId?._id === product._id || item.productId === product._id
+      );
+      if (alreadyInCart) {
+        toast.error(`${product.name} is already in your cart`);
+        return;
+      }
+
+      const axiosConfig = {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        withCredentials: true
+      };
+
+      const response = await axios.post(
+        `http://localhost:5000/api/cart/item`,
+        { productId: product._id, quantity: 1 },
+        axiosConfig
+      );
+
+      // ✅ Update Redux cart
+      dispatch(setCart(response.data.items));
+
+      toast.success(`${product.name} added to cart`);
+    } catch (error) {
+      console.error("Add to cart error:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Failed to add to cart");
     }
+  };
 
-    const axiosConfig = {
-      headers: { 
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      withCredentials: true
-    };
-
-    const response = await axios.post(
-      `http://localhost:5000/api/cart/item`,
-      { productId: product._id, quantity: 1 },
-      axiosConfig
-    );
-
-    // Update Redux with returned cart from backend
-    dispatch(setCart(response.data.items));
-
-    toast.success(`${product.name} added to cart`, {
-      duration: 3000,
-      position: "top-center",
-      style: {
-        background: "#1F2937",
-        color: "#fff",
-        borderRadius: "8px",
-        padding: "12px 20px",
-        fontWeight: "500",
-      },
-      iconTheme: {
-        primary: "#f97316",
-        secondary: "#fff",
-      },
-    });
-  } catch (error) {
-    console.error("Add to cart error:", error.response?.data || error.message);
-    toast.error(error.response?.data?.message || "Failed to add to cart");
-  }
-};
   if (loading) {
     return <p className="text-center text-gray-500">Loading Casual products...</p>;
   }
@@ -131,10 +128,7 @@ export default function ProductGridCasual({ filters }) {
               <p className="text-sm text-gray-600 mb-2">Category: {product.category}</p>
               <p className="text-sm text-gray-600 mb-2">For: {product.gender}</p>
               <p className="text-sm text-gray-600 mb-2">
-                Color:{" "}
-                {Array.isArray(product.colors)
-                  ? product.colors.join(", ")
-                  : product.colors}
+                Color: {Array.isArray(product.colors) ? product.colors.join(", ") : product.colors}
               </p>
               <p className="text-orange-600 font-bold mt-1">PKR {product.price}</p>
             </div>

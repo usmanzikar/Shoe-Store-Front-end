@@ -1,9 +1,8 @@
-// src/components/productsCollection/ProductGridCollection.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
 import LazyImage from "../lazy/LazyMotion";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";  // Added useSelector for cartItems
 import axios from "axios";
 import { setCart } from "../../redux/slices/CartSlice";
 import { toast } from "react-hot-toast";
@@ -14,7 +13,8 @@ const ITEMS_PER_PAGE = 6;
 export default function ProductGridCollection({ filters }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+  const cartItems = useSelector((state) => state.cart.items);  // get cart items
+
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -40,7 +40,6 @@ export default function ProductGridCollection({ filters }) {
     return products.filter((product) => {
       const { color, size, priceMax, category, gender } = filters;
 
-      // Gender filter
       if (gender) {
         const productGenders = Array.isArray(product.gender)
           ? product.gender.map((g) => g.toLowerCase())
@@ -48,11 +47,9 @@ export default function ProductGridCollection({ filters }) {
         if (!productGenders.includes(gender.toLowerCase())) return false;
       }
 
-      // Category filter
       if (category && product.category?.toLowerCase() !== category.toLowerCase())
         return false;
 
-      // Color filter
       if (
         color &&
         (!product.colors ||
@@ -60,10 +57,8 @@ export default function ProductGridCollection({ filters }) {
       )
         return false;
 
-      // Size filter
       if (size && (!product.sizes || !product.sizes.includes(size))) return false;
 
-      // Price filter
       if (priceMax && product.price > priceMax) return false;
 
       return true;
@@ -83,54 +78,62 @@ export default function ProductGridCollection({ filters }) {
   const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginated = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
-  // ✅ Add to cart
- const handleAddToCart = async (e) => {
-  e.stopPropagation();
+  // ✅ Add to cart - fixed product parameter
+  const handleAddToCart = async (e, product) => {
+    e.stopPropagation();
 
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("Please log in to add items to cart");
-      return;
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Please log in to add items to cart");
+        return;
+      }
+
+      // Prevent duplicates in cart
+      const alreadyInCart = cartItems.some(
+        (item) => item.productId?._id === product._id || item.productId === product._id
+      );
+      if (alreadyInCart) {
+        toast.error(`${product.name} is already in your cart`);
+        return;
+      }
+
+      const axiosConfig = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      };
+
+      const response = await axios.post(
+        `http://localhost:5000/api/cart/item`,
+        { productId: product._id, quantity: 1 },
+        axiosConfig
+      );
+
+      dispatch(setCart(response.data.items));
+
+      toast.success(`${product.name} added to cart`, {
+        duration: 3000,
+        position: "top-center",
+        style: {
+          background: "#1F2937",
+          color: "#fff",
+          borderRadius: "8px",
+          padding: "12px 20px",
+          fontWeight: "500",
+        },
+        iconTheme: {
+          primary: "#f97316",
+          secondary: "#fff",
+        },
+      });
+    } catch (error) {
+      console.error("Add to cart error:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Failed to add to cart");
     }
-
-    const axiosConfig = {
-      headers: { 
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      withCredentials: true
-    };
-
-    const response = await axios.post(
-      `http://localhost:5000/api/cart/item`,
-      { productId: product._id, quantity: 1 },
-      axiosConfig
-    );
-
-    // Update Redux with returned cart from backend
-    dispatch(setCart(response.data.items));
-
-    toast.success(`${product.name} added to cart`, {
-      duration: 3000,
-      position: "top-center",
-      style: {
-        background: "#1F2937",
-        color: "#fff",
-        borderRadius: "8px",
-        padding: "12px 20px",
-        fontWeight: "500",
-      },
-      iconTheme: {
-        primary: "#f97316",
-        secondary: "#fff",
-      },
-    });
-  } catch (error) {
-    console.error("Add to cart error:", error.response?.data || error.message);
-    toast.error(error.response?.data?.message || "Failed to add to cart");
-  }
-};
+  };
 
   if (loading) {
     return <p className="text-center text-gray-500 mt-10">Loading products...</p>;

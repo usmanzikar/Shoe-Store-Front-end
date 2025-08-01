@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { setCart } from "../../redux/slices/CartSlice";
 import { toast } from "react-hot-toast";
@@ -10,19 +10,17 @@ import { fetchProducts } from "../../utils/api";
 export default function ProductGridWomen({ filters }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.cart.items);
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch products from API
+  // ✅ Fetch products
   useEffect(() => {
     const loadProducts = async () => {
       try {
         const data = await fetchProducts();
-        // Filter only women’s products
         const womenProducts = data.filter((p) => p.gender?.toLowerCase() === "women");
-        console.log(womenProducts)
-
         setProducts(womenProducts);
       } catch (error) {
         console.error("Error fetching women's products:", error);
@@ -35,69 +33,69 @@ export default function ProductGridWomen({ filters }) {
 
   const filterProducts = (product) => {
     const { color, size, priceMax, category } = filters;
-    let valid = true;
 
-    if (category && product.category?.toLowerCase() !== category.toLowerCase()) valid = false;
-     if (color && (!product.colors || !product.colors.includes(color.toLowerCase()))) return false;
-    if (size && (!product.sizes || !product.sizes.includes(size))) valid = false;
-    if (priceMax && product.price > priceMax) valid = false;
+    if (category && product.category?.toLowerCase() !== category.toLowerCase()) return false;
+    if (color && (!product.colors || !product.colors.map(c => c.toLowerCase()).includes(color.toLowerCase()))) return false;
+    if (size && (!product.sizes || !product.sizes.includes(size))) return false;
+    if (priceMax && product.price > priceMax) return false;
 
-    return valid;
+    return true;
   };
 
   const filtered = products.filter(filterProducts);
 
- const handleAddToCart = async (e) => {
-  e.stopPropagation();
+  // ✅ Fix: Accept product as argument
+  const handleAddToCart = async (e, product) => {
+    e.stopPropagation();
 
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("Please log in to add items to cart");
-      return;
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Please log in to add items to cart");
+        return;
+      }
+
+      // 🔹 Prevent duplicate adds
+      const alreadyInCart = cartItems.some(
+        (item) => item.productId?._id === product._id || item.productId === product._id
+      );
+      if (alreadyInCart) {
+        toast.error(`${product.name} is already in your cart`);
+        return;
+      }
+
+      const axiosConfig = {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        withCredentials: true,
+      };
+
+      const response = await axios.post(
+        `http://localhost:5000/api/cart/item`,
+        { productId: product._id, quantity: 1 },
+        axiosConfig
+      );
+
+      dispatch(setCart(response.data.items));
+
+      toast.success(`${product.name} added to cart`, {
+        duration: 3000,
+        position: "top-center",
+        style: {
+          background: "#1F2937",
+          color: "#fff",
+          borderRadius: "8px",
+          padding: "12px 20px",
+          fontWeight: "500",
+        },
+        iconTheme: { primary: "#f97316", secondary: "#fff" },
+      });
+    } catch (error) {
+      console.error("Add to cart error:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Failed to add to cart");
     }
+  };
 
-    const axiosConfig = {
-      headers: { 
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      withCredentials: true
-    };
-
-    const response = await axios.post(
-      `http://localhost:5000/api/cart/item`,
-      { productId: product._id, quantity: 1 },
-      axiosConfig
-    );
-
-    // Update Redux with returned cart from backend
-    dispatch(setCart(response.data.items));
-
-    toast.success(`${product.name} added to cart`, {
-      duration: 3000,
-      position: "top-center",
-      style: {
-        background: "#1F2937",
-        color: "#fff",
-        borderRadius: "8px",
-        padding: "12px 20px",
-        fontWeight: "500",
-      },
-      iconTheme: {
-        primary: "#f97316",
-        secondary: "#fff",
-      },
-    });
-  } catch (error) {
-    console.error("Add to cart error:", error.response?.data || error.message);
-    toast.error(error.response?.data?.message || "Failed to add to cart");
-  }
-};
-
-  if (loading) {
-    return <p className="text-center text-gray-500">Loading women's products...</p>;
-  }
+  if (loading) return <p className="text-center text-gray-500">Loading women's products...</p>;
 
   return (
     <div className="w-full md:flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
@@ -107,25 +105,24 @@ export default function ProductGridWomen({ filters }) {
           onClick={() => navigate(`/product/${product._id}`)}
           className="bg-white rounded-xl shadow hover:shadow-2xl transition-all duration-300 p-4 relative group flex flex-col justify-between h-auto max-w-[320px]"
         >
-          {/* Image */}
           <img
             src={product.images?.[0] || "https://via.placeholder.com/250"}
             alt={product.name}
             className="w-full h-[250px] object-cover rounded"
           />
 
-          {/* Text Content */}
           <div className="mt-3 flex-1 flex flex-col justify-between">
             <div>
               <h4 className="font-bold text-lg text-gray-800">{product.name}</h4>
               <p className="text-gray-600 text-sm">{product.shortDesc}</p>
               <p className="text-sm text-gray-600 mb-2">Category: {product.category}</p>
               <p className="text-sm text-gray-600 mb-2">For: {product.gender}</p>
-              <p className="text-sm text-gray-600 mb-2">Color: {Array.isArray(product.colors) ? product.colors.join(", ") : product.colors}</p>
+              <p className="text-sm text-gray-600 mb-2">
+                Color: {Array.isArray(product.colors) ? product.colors.join(", ") : product.colors}
+              </p>
               <p className="text-orange-600 font-bold mt-1">PKR {product.price}</p>
             </div>
 
-            {/* Buttons */}
             <div className="flex justify-between items-center mt-4">
               <button
                 onClick={(e) => e.stopPropagation()}

@@ -7,6 +7,11 @@ import DetailPageNav from "../components/common/DetailPageNav";
 import { FaShippingFast, FaUndoAlt, FaWhatsapp } from "react-icons/fa";
 import OtherProductDetail from "../components/productDetail/OtherProductDetails";
 import RelatedProducts from "../components/productDetail/RelatedProducts";
+import axios from "axios";
+import { setCart } from "../redux/slices/CartSlice";
+import { toast } from "react-hot-toast";
+import { useDispatch } from "react-redux";
+
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -16,6 +21,7 @@ export default function ProductDetail() {
   const [error, setError] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [activeMessage, setActiveMessage] = useState(0);
+    const dispatch = useDispatch();
 
   const salesMessages = useMemo(
     () => [
@@ -94,6 +100,53 @@ export default function ProductDetail() {
       </section>
     );
   }
+   const handleAddToCart = async (e) => {
+  e.stopPropagation();
+
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Please log in to add items to cart");
+      return;
+    }
+
+    const axiosConfig = {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      withCredentials: true
+    };
+
+    const response = await axios.post(
+      `http://localhost:5000/api/cart/item`,
+      { productId: product._id, quantity }, 
+      axiosConfig
+    );
+
+    // Update Redux with returned cart from backend
+     dispatch(setCart(response.data.items || response.data.cart?.items || []));
+
+    toast.success(`${product.name} added to cart`, {
+      duration: 3000,
+      position: "top-center",
+      style: {
+        background: "#1F2937",
+        color: "#fff",
+        borderRadius: "8px",
+        padding: "12px 20px",
+        fontWeight: "500",
+      },
+      iconTheme: {
+        primary: "#f97316",
+        secondary: "#fff",
+      },
+    });
+  } catch (error) {
+    console.error("Add to cart error:", error.response?.data || error.message);
+    toast.error(error.response?.data?.message || "Failed to add to cart");
+  }
+};
 
   // Main View
   return (
@@ -181,7 +234,9 @@ export default function ProductDetail() {
                 </button>
               </div>
 
-              <button className="bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 transition w-full">
+              <button className="bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 transition w-full" 
+              onClick={(e) => handleAddToCart(e, product)}
+              >
                 🛒 Add to Cart
               </button>
             </div>
