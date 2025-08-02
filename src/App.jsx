@@ -63,7 +63,7 @@ function App() {
 
     try {
   const token = localStorage.getItem("token");
-  console.log("🔑 Token in fetchCart:", token);
+  // console.log("🔑 Token in fetchCart:", token);
 
   const res = await axios.get("http://localhost:5000/api/cart", {
     headers: {
@@ -73,7 +73,7 @@ function App() {
     withCredentials: true // optional, in case cookies or CORS issues
   });
 
-  console.log("✅ Cart Response:", res.data);
+  // console.log("✅ Cart Response:", res.data);
   dispatch(setCart(res.data.items));
 } catch (err) {
   console.error("❌ Error fetching cart:", err.response?.data || err.message);
